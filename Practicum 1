@@ -101,73 +101,74 @@ outliers <- function(x){
 ```{r}
 
 county = tribble(
-  ~county_code, ~county_name,
-  "AL",   "ALbany",
-  "CA",   "CAttaraugus",
-  "CN",   "CheNango",
-  "DE",   "DElaware",
-  "FR",   "FRanklin",
-  "HA",   "HAmilton",
-  "LE",   "LEwis",
-  "MG",   "MontGomery",
-  "ON",   "ONeida",
-  "OL",   "OrLeans",
-  "NY",   "Queens",
-  "SL",   "St.Lawrence",
-  "SY",   "SchuYler",
-  "SV",   "SulliVan",
-  "WR",   "WaRren",
-  "WY",   "WYoming",
-  "AG",   "AlleGany",
-  "CY",   "CaYuga",
-  "CL",   "CLinton",
-  "DU",   "DUtchess",
-  "FU",   "FUlton",
-  "HE",   "HErkimer",
-  "LI",   "LIvingston",
-  "NA",   "NAssau",
-  "OD",   "OnonDaga",
-  "OS",   "OSwego",
-  "RE",   "REnsselaer",
-  "SA",   "SAratoga",
-  "SE",   "SEneca",
-  "TI",   "TIoga",
-  "WS",   "WaShington",
-  "YA",   "YAtes",
-  "NY",   "Bronx",
-  "CH",   "CHautauqua",
-  "CO",   "COlumbia",
-  "ER",   "ERie",
-  "GE",   "GEnesee",
-  "JE",   "JEfferson",
-  "MA",   "MAdison",
-  "NY",   "New York (City)",
-  "OT",   "OnTario",
-  "OG",   "OtseGo",
-  "NY",   "Richmond",
-  "SC",   "SChenectady",
-  "ST",   "STeuben",
-  "TO",   "TOmpkins",
-  "WA",   "WAyne",
-  "BM",   "BrooMe",
-  "CM",   "CheMung",
-  "CR",   "CoRtland",
-  "ES",   "ESsex",
-  "GR",   "GReene",
-  "NY",   "Kings",
-  "MO",   "MOnroe",
-  "NI",   "NIagara",
-  "OR",   "ORange",
-  "PU",   "PUtnam",
-  "RO",   "ROckland",
-  "SH",   "SchoHarie",
-  "SU",   "SUffolk",
-  "UL",   "ULster",
-  "WE",   "WEstchester"
+  ~county_code, ~county_of_program_location,
+  "AL", "Albany",
+  "CA", "Cattaraugus",
+  "CN", "Chenango",
+  "DE", "Delaware",
+  "FR", "Franklin",
+  "HA", "Hamilton",
+  "LE", "Lewis",
+  "MG", "Montgomery",
+  "ON", "Oneida",
+  "OL", "Orleans",
+  "NYQ", "Queens",
+  "SL", "Saint Lawrence",
+  "SY", "Schuyler",
+  "SV", "Sullivan",
+  "WR", "Warren",
+  "WY", "Wyoming",
+  "AG", "Allegany",
+  "CY", "Cayuga",
+  "CL", "Clinton",
+  "DU", "Dutchess",
+  "FU", "Fulton",
+  "HE", "Herkimer",
+  "LI", "Livingston",
+  "NA", "Nassau",
+  "OD", "Onondaga",
+  "OS", "Oswego",
+  "RE", "Rensselaer",
+  "SA", "Saratoga",
+  "SE", "Seneca",
+  "TI", "Tioga",
+  "WS", "Washington",
+  "YA", "Yates",
+  "NYB", "Bronx",
+  "CH", "Chautauqua",
+  "CO", "Columbia",
+  "ER", "Erie",
+  "GE", "Genesee",
+  "JE", "Jefferson",
+  "MA", "Madison",
+  "NY", "New York",
+  "OT", "Ontario",
+  "OG", "Otsego",
+  "NYR", "Richmond",
+  "SC", "Schenectady",
+  "ST", "Steuben",
+  "TO", "Tompkins",
+  "WA", "Wayne",
+  "BM", "Broome",
+  "CM", "Chemung",
+  "CR", "Cortland",
+  "ES", "Essex",
+  "GR", "Greene",
+  "NYK", "Kings",
+  "MO", "Monroe",
+  "NI", "Niagara",
+  "OR", "Orange",
+  "PU", "Putnam",
+  "RO", "Rockland",
+  "SH", "Schoharie",
+  "SU", "Suffolk",
+  "UL", "Ulster",
+  "WE", "Westchester"
 )
 county %>%
   count(county_code) %>%
   filter(n>1)
+county
 ```
 
 
@@ -184,17 +185,16 @@ program_category <- tribble(
 program_category
 ```
 ```{r}
-primary_substance_group <- tribble(
-  ~substance_code, ~primary_substance_group,
-  "A", "Alcohol",
-  "O", "All Others",
-  "C", "Cocaine incl Crack",
-  "H", "Heroin",
-  "M", "Marijuana incl Hashish",
-  "N", "None",
-  "OO", "Other Opioids "
+program_category <- tribble(
+  ~program_code, ~program_category,
+  "CR", "Crisis",
+  "IN", "Inpatient",
+  "OTP", "Opioid Treatment Program",
+  "OP", "Outpatient",
+  "RE", "Residential",
+  "SP", "Specialized"
 )
-primary_substance_group
+program_category
 ```
 ```{r}
 admissions_data <- df_admission %>%
@@ -202,4 +202,15 @@ admissions_data <- df_admission %>%
   left_join(primary_substance_group, by = "substance_code")
 head(admissions_data)
 ```
+```{r}
 
+admissions_data <- df_admission %>%
+    left_join(county, by = "county_of_program_location") %>%
+    left_join(program_category, by = "program_category") %>%
+    left_join(primary_substance_group, by = "primary_substance_group") %>%
+    select(year, county_code,program_code, service_type, age_group, substance_code, admissions ) 
+   
+    
+admissions_data
+
+```
