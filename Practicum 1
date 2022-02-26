@@ -202,4 +202,20 @@ admissions_data <- df_admission %>%
   left_join(primary_substance_group, by = "substance_code")
 head(admissions_data)
 ```
+```{r Q4}
+# Question 4
+  annualAdmissions <- function(admissions_data){
+  admissions_data_NY <- filter(admissions_data, county_code %in% c("NY", "NYQ", "NYB", "NYK", "NYR"))
+  by_year <- group_by(admissions_data_NY, year) 
+  adm_per_year <- summarize(by_year, sum = sum(admissions))
+  return (adm_per_year)
+  }
+annualAdmissions_NY <- annualAdmissions(admissions_data)
+ggplot(annualAdmissions_NY, aes(year, sum, group = 1))+
+  geom_point()+
+  geom_line()+
+  geom_segment(aes(x = '2009', y = 0, xend = '2009', yend = 141245),linetype="dashed", color = "red")+
+  labs(x = "Year", y = "Tottal_Admissions", title = "Total number of admissions in New York state over years")
 
+## year 2009 has the maximum admissions(141245). after 2009, the number of admissions decrease year by year. 
+```
