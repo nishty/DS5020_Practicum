@@ -218,4 +218,94 @@ ggplot(annualAdmissions_NY, aes(year, sum, group = 1))+
   labs(x = "Year", y = "Tottal_Admissions", title = "Total number of admissions in New York state over years")
 
 ## year 2009 has the maximum admissions(141245). after 2009, the number of admissions decrease year by year. 
+
+#Question 6
+
+df_admission_rehab <- filter(df_admission,
+                   grepl('Rehab', service_type))
+                  
+df_admission_rehab_sum <-aggregate(df_admission_rehab$admissions, by=list(Substance=df_admission_rehab$primary_substance_group,                                                                          Age_group=df_admission_rehab$age_group), FUN=sum)
+
+colnames(df_admission_rehab_sum)[3] <- "Sum"
+
+
+```
+```{r}
+ggplot(df_admission_rehab_sum, aes(x=Substance, y=Sum))+
+  geom_bar(stat='identity', fill="forest green")+
+  facet_wrap(~Age_group,ncol=1,scales="free_y")
+
+#From the graph we can see that for the age range 18 thru 24 , Heroin is the most prominent  substance
+#For the age range 25 to 34 as well, heroin again is the most prominent substance
+#For the age range 35 to 44, Alcohol is the most prominent substance
+#For the age range 45 thought 54 and 55 and older , alcohol is the prominent substance
+#Under 18 age group Marujana and Hasish is the prominent substance
+
+```
+```
+#Question 7
+
+
+df_admission_rehab_sum_county <-aggregate(df_admission_rehab$admissions, by=list(Substance=df_admission_rehab$primary_substance_group,                                                                          year=df_admission_rehab$year,county=df_admission_rehab$county_of_program_location), FUN=sum)
+
+colnames(df_admission_rehab_sum_county)[4] <- "Sum"
+
+df_admission_by_county<-aggregate(df_admission_rehab$admissions, by=list(                                                                         county=df_admission_rehab$county_of_program_location), FUN=sum)
+colnames(df_admission_by_county)[2] <- "total_admissions"
+# Counties with the most number of admissions
+
+p1 <- ggplot(df_admission_by_county, aes(x=county, y=total_admissions, fill=county)) + geom_bar(stat="identity")
+
+p1
+```
+
+```{r}
+#Line chart overall grouped by substance 
+df_admission_by_year_substance<-aggregate(df_admission_rehab$admissions, by=list(                                                                         substance=df_admission_rehab$primary_substance_group,                                                                     year=df_admission_rehab$year), FUN=sum)
+colnames(df_admission_by_year_substance)[3] <- "total_admissions"
+#Multiple Line graphs
+ggplot(data=df_admission_by_year_substance, aes(x=year, y=total_admissions, group = substance, colour = substance)) +
+    geom_line() +
+    geom_point( size=2, shape=21, fill="white")+
+   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+
+
+
+ 
+```
+
+```{r}
+#Top 10 counties
+
+df_admission_by_county_10 <- df_admission_by_county[with(df_admission_by_county,order(-total_admissions)),]
+
+df_admission_by_county_10 <- df_admission_by_county_10[1:10,]
+```
+
+```{r}
+#Trends in in certain counties and substance groups
+
+df_admission_rehab_sum_county
+
+df_admission_rehab_sum_county_10<-df_admission_rehab_sum_county %>%
+      filter(county %in% df_admission_by_county_10$county)
+
+
+ggplot(data=df_admission_rehab_sum_county_10, aes(x=year, y=Sum, group = Substance, colour = Substance)) +
+    geom_line() +
+    geom_point( size=1, shape=21, fill="white") + facet_wrap((~county))
+     
+
+#From the graph below we can see that in the top 10 counties , alcohol is the most prominent substance , followed by Heroin .
+#Suffolk and Schenectady have heroin as a prominent substance in some years compared to alchohol.
+#in some of the counties like Putnam and westchester , 2019 saw the most number of rehab admissions
+#year 2020 for most counties had the lowest admissions
+
+             
+```
+
+```{r}
+#stacked bar plot 
+ggplot(df_admission_rehab_sum_county_10, aes(fill=Substance, y=Sum, x=county)) + 
+  geom_bar(position='stack', stat='identity') + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
 ```
